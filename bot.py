@@ -3,37 +3,42 @@ from discord.ext import commands
 import pathlib
 from pathlib import Path
 import json
-import asyncio
 
 #Printing the current working directory just cos
 cwd = Path(__file__).parents[0]
+cwd = str(cwd)
 print(cwd)
 
 def get_prefix(bot, message):
-    if not message.guild:
-        return commands.when_mentioned_or("-")(bot, message)
-    data = read_json('discordConfig')
-    did = '{}'.format(message.guild.id)
-    if did not in data:
-        return commands.when_mentioned_or("-")(bot, message)
-    prefix = data[did]['prefix']
-    return commands.when_mentioned_or(prefix)(bot, message)
+    data = read_json('config')
+    if not message.guild or str(message.guild.id) not in data:
+        return commands.when_mentioned_or(data['configs']['defaults']['prefix'])(bot, message)
+    return commands.when_mentioned_or(data['configs'][str(message.guild.id)]['prefix'])(bot, message)
 
-config_file = json.load(open(str(cwd)+'/bot_config/config.json'))
-secret_file = json.load(open(str(cwd)+'/bot_config/secrets.json'))
-prefix = config_file['configs']['default']['prefix']
-bot = commands.Bot(command_prefix=prefix, owner_id=271612318947868673)
+bot = commands.Bot(command_prefix=get_prefix, case_insensitve=True, owner_ids=[271612318947868673, 387138288231907329])
+
+secret_file = json.load(open(cwd+'/bot_config/token.json'))
 bot.config_token = secret_file['token']
 
 botVersion = "0.0.1"
 
 @bot.event
 async def on_ready():
-    print(f"-----\nLogged in as: {bot.user.name} : {bot.user.id}\n-----\nMy current prefix is: {prefix}\n-----")
+    print(f"-----\nLogged in as: {bot.user.name} : {bot.user.id}\n-----")
     await bot.change_presence(activity=discord.Game(name="Playing with dpy anti spam"))
 
+@bot.event
+async def on_message(message):
+    data = read_json('config')
+    if message.content == 'test1':
+        msg = data['configs']['default']['userSpamWarningMessage']
+        await message.channel.send(content=f'{msg}')
+    elif message.content == 'test2':
+        msg = data['configs']['default']['userSpamMuteMessage']
+        await message.channel.send(content=f'{msg}')
+
 @bot.command()
-@commands.has_role('Dev')
+@commands.is_owner()
 async def logout(ctx):
     """Log the bot out of discord"""
     await ctx.send("Logging out...")
@@ -47,7 +52,7 @@ def read_json(filename):
 
 def write_json(data, filename):
     jsonFile = open(str(cwd)+'/bot_config/'+filename+'.json', 'w+')
-    jsonFile.write(json.dumps(data,indent=4))
+    jsonFile.write(json.dumps(data, indent=4)) # Indent = 4 so it looks nice in the file
     jsonFile.close()
 
 @bot.command()
@@ -62,11 +67,19 @@ async def stats(ctx):
     embed.add_field(name='Discord.Py Version', value=dpyVersion)
     embed.add_field(name='Total Guilds:', value=serverCount)
     embed.add_field(name='Total Users:', value=memberCount)
-    embed.add_field(name='Bot Developer:', value="<@271612318947868673>")
+    embed.add_field(name='Bot Developers:', value="<@271612318947868673> and <@387138288231907329>")
     embed.set_footer(text="Carpe Noctem | {}".format(bot.user.name))
     embed.set_author(name = str(bot.user.name), icon_url = str(bot.user.avatar_url))
     await ctx.send(embed = embed)
 
+def SetupJsonDefaults():
+    data = read_json('config')
+    data['configs'] = {}
+    data['configs']['default'] = {}
+    data['configs']['default']['prefix'] = '--'
+    data['configs']['default']['userSpamWarningMessage'] = "Stop spamming {message.author.mention}, or I will be forced to take action!"
+    data['configs']['default']['userSpamMuteMessage'] = "Hey {message.author.mention}! I have muted you for spam, you will be unmuted at {unmuteTime}."
+    write_json(data, 'config')
+
 if __name__ == '__main__':
-    advertising_script.start()
     bot.run(bot.config_token)

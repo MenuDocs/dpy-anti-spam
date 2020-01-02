@@ -1,5 +1,9 @@
 {
-  "647142205189783594": {
-    "prefix": "="
-  }
+    "configs": {
+        "default": {
+            "prefix": "--",
+            "userSpamWarningMessage": "Stop spamming {message.author.mention}, or I will be forced to take action!",
+            "userSpamMuteMessage": "Hey {message.author.mention}! I have muted you for spam, you will be unmuted at {unmuteTime}."
+        }
+    }
 }
