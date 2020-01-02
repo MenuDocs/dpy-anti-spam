@@ -3,6 +3,7 @@ from discord.ext import commands
 import pathlib
 from pathlib import Path
 import json
+import re # regex
 
 #Printing the current working directory just cos
 cwd = Path(__file__).parents[0]
@@ -32,9 +33,11 @@ async def on_message(message):
     data = read_json('config')
     if message.content == 'test1':
         msg = data['configs']['default']['userSpamWarningMessage']
-        await message.channel.send(content=f'{msg}')
+        msg = re.sub('MENTIONAUTHOR', message.author.mention, msg)
+        await message.channel.send(content=msg)
     elif message.content == 'test2':
         msg = data['configs']['default']['userSpamMuteMessage']
+        msg = re.sub('MENTIONAUTHOR', message.author.mention, msg)
         await message.channel.send(content=f'{msg}')
 
 @bot.command()
@@ -77,9 +80,45 @@ def SetupJsonDefaults():
     data['configs'] = {}
     data['configs']['default'] = {}
     data['configs']['default']['prefix'] = '--'
-    data['configs']['default']['userSpamWarningMessage'] = "Stop spamming {message.author.mention}, or I will be forced to take action!"
-    data['configs']['default']['userSpamMuteMessage'] = "Hey {message.author.mention}! I have muted you for spam, you will be unmuted at {unmuteTime}."
+    data['configs']['default']['userSpamWarningMessage'] = "Stop spamming MENTIONAUTHOR, or I will be forced to take action!" #Captial letter words will be subbed out for there actual equvialant using regex
+    data['configs']['default']['userSpamMuteMessage'] = "Hey MENTIONAUTHOR! I have muted you for spam, you will be unmuted at UNMUTETIME."
+    data['configs']['default']['groupSpamWarningMessage'] = 'Hey! I need all of you to stop spamming before I punish everyone.'
+    data['configs']['default']['groupSpamMuteMessage'] = 'Well, now you\'ve done it. I\'ve had to mute you all.'
+    data['configs']['default']['spamAutoChannelLockMessage'] = 'Due to spam, I have locked down this channel!'
+    data['configs']['default']['userFullChannelLockdownNewUserAutoMuteMessage'] = 'Hey, due to an ongoing full guild lockdown all new users are auto muted.\nPlease contact DISCORDCONTACTPERSONINFO or join our support discord to dispute the mute. ||OURDISCORDINVITE||'
+    data['configs']['default']['auditFullChannelLockdownNewUserAutoMuteMessage'] = 'Due to an ongoing full guild lockdown, I have auto muted USERNAME. I have also provided information on how to get it removed.'
+    data['configs']['default']['fullChannelLockdownNewUserAutoKickMessage'] = 'Hey, due to an ongoing full guild lockdown all new users are auto kicked. Here is an invite back to the discord, feel free to rejoin in around 15 minutes. ||DISCORDINVITE||\nIf this continues please contact DISCORDCONTACTPERSONINFO or join our support discord to dispute the kick. ||OURDISCORDINVITE||'
+    data['configs']['default']['auditChannelLockdownNewUserAutoKickMessage'] = 'Due to an ongoing full guild lockdown, I have auto kicked USERNAME. I have also provided information on how to get it dealt with.'
+
+    data['configs']['default']['muteLength'] = 18000 #In milli seconds - 18000 = 5 mins
+    data['configs']['default']['timesWarnedBeforeMute'] = 3 #10th time the bot pulls u up is a ban
+    data['configs']['default']['timesMutedBeforeKick'] = 3
+    data['configs']['default']['timesKickedBeforeBan'] = 1
+
+    data['configs']['default']['groupSpamTimer'] =  9000 # Essentially the maximum time between different users messages before it is not considered spam
+    data['configs']['default']['userSpamTimer'] = 9000 # Same as above just for per user
+    data['configs']['default']['channelSpamTimer'] = 9000 # Essentially the same as above but for per channel settings
+    data['configs']['default']['singleChannelLockTime'] = 18000 # 5 mins
+    data['configs']['default']['allGuildChannelLockTime'] = 36000 # 10 mins
+
+    data['configs']['default']['userMessagesMinThresholdForSpam'] = 3
+    data['configs']['default']['channelMessagesMinThresholdForSpam'] = 3
+    data['configs']['default']['guildMessagesMinThresholdForSpam'] = 10
+
+    data['configs']['default']['bypassKickMode'] = False
+    data['configs']['default']['bypassBanMode'] = False
+    data['configs']['default']['onChannelSpamTripLockChannel'] = True
+    data['configs']['default']['onGuildSpamTripLockAllChannels'] = True
+    data['configs']['default']['duringFullLockdownAutoMuteNewUsers'] = True
+    data['configs']['default']['duringFullLockdownAutoKickNewUsers'] = False
+
+    data['configs']['default']['dmKickedUserMessage'] = 'Hey! Look, I have had to kick you from DISCORDNAME due to the amount of punishments you have received. If I have to punish you again I will ban you.\nHeres an invite back to the discord : DISCORDINVITE'
+    data['configs']['default']['auditLogKickedUserMessage'] = 'I kicked USERNAME as they had excedded the punishment limit before receiving a kick. They have received an invite back however, with warnings agaisnt further misconduct.'
+    data['configs']['default']['dmBanUserMessage'] = 'Hey I did warn you! Consider yourself banned from DISCORDNAME.\nTo dispute this please join our support server and in the disputes channel type OURDISCORDGUILDPREFIXdispute PUNISHMENTID\n||OURDISCORDINVITE||'
+    data['configs']['default']['auditLogBanUserMessage'] = 'I banned USERNAME as they had excedded the punishment limit before receiving a ban. They have been issued details on how to dispute the punishment.'
+    data['configs']['default'][''] = ''
     write_json(data, 'config')
 
 if __name__ == '__main__':
+    #SetupJsonDefaults()
     bot.run(bot.config_token)

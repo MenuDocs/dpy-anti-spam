@@ -2,8 +2,38 @@
     "configs": {
         "default": {
             "prefix": "--",
-            "userSpamWarningMessage": "Stop spamming {message.author.mention}, or I will be forced to take action!",
-            "userSpamMuteMessage": "Hey {message.author.mention}! I have muted you for spam, you will be unmuted at {unmuteTime}."
+            "userSpamWarningMessage": "Stop spamming MENTIONAUTHOR, or I will be forced to take action!",
+            "userSpamMuteMessage": "Hey MENTIONAUTHOR! I have muted you for spam, you will be unmuted at UNMUTETIME.",
+            "groupSpamWarningMessage": "Hey! I need all of you to stop spamming before I punish everyone.",
+            "groupSpamMuteMessage": "Well, now you've done it. I've had to mute you all.",
+            "spamAutoChannelLockMessage": "Due to spam, I have locked down this channel!",
+            "userFullChannelLockdownNewUserAutoMuteMessage": "Hey, due to an ongoing full guild lockdown all new users are auto muted.\nPlease contact DISCORDCONTACTPERSONINFO or join our support discord to dispute the mute. ||OURDISCORDINVITE||",
+            "auditFullChannelLockdownNewUserAutoMuteMessage": "Due to an ongoing full guild lockdown, I have auto muted USERNAME. I have also provided information on how to get it removed.",
+            "fullChannelLockdownNewUserAutoKickMessage": "Hey, due to an ongoing full guild lockdown all new users are auto kicked. Here is an invite back to the discord, feel free to rejoin in around 15 minutes. ||DISCORDINVITE||\nIf this continues please contact DISCORDCONTACTPERSONINFO or join our support discord to dispute the kick. ||OURDISCORDINVITE||",
+            "auditChannelLockdownNewUserAutoKickMessage": "Due to an ongoing full guild lockdown, I have auto kicked USERNAME. I have also provided information on how to get it dealt with.",
+            "muteLength": 18000,
+            "timesWarnedBeforeMute": 3,
+            "timesMutedBeforeKick": 3,
+            "timesKickedBeforeBan": 1,
+            "groupSpamTimer": 9000,
+            "userSpamTimer": 9000,
+            "channelSpamTimer": 9000,
+            "singleChannelLockTime": 18000,
+            "allGuildChannelLockTime": 36000,
+            "userMessagesMinThresholdForSpam": 3,
+            "channelMessagesMinThresholdForSpam": 3,
+            "guildMessagesMinThresholdForSpam": 10,
+            "bypassKickMode": false,
+            "bypassBanMode": false,
+            "onChannelSpamTripLockChannel": true,
+            "onGuildSpamTripLockAllChannels": true,
+            "duringFullLockdownAutoMuteNewUsers": true,
+            "duringFullLockdownAutoKickNewUsers": false,
+            "dmKickedUserMessage": "Hey! Look, I have had to kick you from DISCORDNAME due to the amount of punishments you have received. If I have to punish you again I will ban you.\nHeres an invite back to the discord : DISCORDINVITE",
+            "auditLogKickedUserMessage": "I kicked USERNAME as they had excedded the punishment limit before receiving a kick. They have received an invite back however, with warnings agaisnt further misconduct.",
+            "dmBanUserMessage": "Hey I did warn you! Consider yourself banned from DISCORDNAME.\nTo dispute this please join our support server and in the disputes channel type OURDISCORDGUILDPREFIXdispute PUNISHMENTID\n||OURDISCORDINVITE||",
+            "auditLogBanUserMessage": "I banned USERNAME as they had excedded the punishment limit before receiving a ban. They have been issued details on how to dispute the punishment.",
+            "": ""
         }
     }
 }
