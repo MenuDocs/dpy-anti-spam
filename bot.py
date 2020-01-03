@@ -95,6 +95,8 @@ def SetupJsonDefaults():
     data['configs']['default']['timesWarnedBeforeMute'] = 3 #10th time the bot pulls u up is a ban
     data['configs']['default']['timesMutedBeforeKick'] = 3
     data['configs']['default']['timesKickedBeforeBan'] = 1
+    data['configs']['default']['userSpamMessageMinimumCharacterLength'] = 3
+    data['configs']['default']['groupSpamMessageMinimumCharacterLength'] = 3
 
     data['configs']['default']['groupSpamTimer'] =  9000 # Essentially the maximum time between different users messages before it is not considered spam
     data['configs']['default']['userSpamTimer'] = 9000 # Same as above just for per user
@@ -140,5 +142,5 @@ def SetupJsonDefaults():
     print(len(data['configs']['default']))
 
 if __name__ == '__main__':
-    SetupJsonDefaults()
+    #SetupJsonDefaults()
     bot.run(bot.config_token)
