@@ -4,6 +4,7 @@ import pathlib
 from pathlib import Path
 import json
 import re # regex
+import platform
 
 #Printing the current working directory just cos
 cwd = Path(__file__).parents[0]
@@ -12,8 +13,8 @@ print(cwd)
 
 def get_prefix(bot, message):
     data = read_json('config')
-    if not message.guild or str(message.guild.id) not in data:
-        return commands.when_mentioned_or(data['configs']['defaults']['prefix'])(bot, message)
+    if not message.guild or str(message.guild.id) not in data['configs']:
+        return commands.when_mentioned_or(data['configs']['default']['prefix'])(bot, message)
     return commands.when_mentioned_or(data['configs'][str(message.guild.id)]['prefix'])(bot, message)
 
 bot = commands.Bot(command_prefix=get_prefix, case_insensitve=True, owner_ids=[271612318947868673, 387138288231907329])
@@ -21,7 +22,7 @@ bot = commands.Bot(command_prefix=get_prefix, case_insensitve=True, owner_ids=[2
 secret_file = json.load(open(cwd+'/bot_config/token.json'))
 bot.config_token = secret_file['token']
 
-botVersion = "0.0.1"
+botVersion = "0.0.2"
 
 @bot.event
 async def on_ready():
@@ -33,12 +34,14 @@ async def on_message(message):
     data = read_json('config')
     if message.content == 'test1':
         msg = data['configs']['default']['userSpamWarningMessage']
-        msg = re.sub('MENTIONAUTHOR', message.author.mention, msg)
+        msg = msg.replace('MENTIONAUTHOR', message.author.mention)  #re.sub('MENTIONAUTHOR', message.author.mention, msg)
         await message.channel.send(content=msg)
     elif message.content == 'test2':
         msg = data['configs']['default']['userSpamMuteMessage']
-        msg = re.sub('MENTIONAUTHOR', message.author.mention, msg)
+        msg = msg.replace('MENTIONAUTHOR', message.author.mention) #re.sub('MENTIONAUTHOR', message.author.mention, msg)
         await message.channel.send(content=f'{msg}')
+
+    await bot.process_commands(message)
 
 @bot.command()
 @commands.is_owner()
@@ -48,15 +51,13 @@ async def logout(ctx):
     await bot.logout()
 
 def read_json(filename):
-    jsonFile = open(str(cwd)+'/bot_config/'+filename+'.json', 'r')
-    data = json.load(jsonFile)
-    jsonFile.close()
+    with open(cwd+'/bot_config/'+filename+'.json', 'r') as file:
+        data = json.load(file)
     return data
 
 def write_json(data, filename):
-    jsonFile = open(str(cwd)+'/bot_config/'+filename+'.json', 'w+')
-    jsonFile.write(json.dumps(data, indent=4)) # Indent = 4 so it looks nice in the file
-    jsonFile.close()
+    with open(cwd+'/bot_config/'+filename+'.json', 'w') as file:
+        json.dump(data, file, indent=4)
 
 @bot.command()
 async def stats(ctx):
@@ -64,16 +65,16 @@ async def stats(ctx):
     dpyVersion = discord.__version__
     serverCount = len(bot.guilds)
     memberCount = len(set(bot.get_all_members()))
-    embed = discord.Embed(title='{} Stats'.format(bot.user.name), description='\uFEFF', colour=ctx.author.colour)
+    embed = discord.Embed(title=f'{bot.user.name} Stats', description='\uFEFF', colour=ctx.author.colour)
     embed.add_field(name='Bot Version:', value=botVersion)
     embed.add_field(name='Python Version:', value=pythonVersion)
     embed.add_field(name='Discord.Py Version', value=dpyVersion)
     embed.add_field(name='Total Guilds:', value=serverCount)
     embed.add_field(name='Total Users:', value=memberCount)
     embed.add_field(name='Bot Developers:', value="<@271612318947868673> and <@387138288231907329>")
-    embed.set_footer(text="Carpe Noctem | {}".format(bot.user.name))
-    embed.set_author(name = str(bot.user.name), icon_url = str(bot.user.avatar_url))
-    await ctx.send(embed = embed)
+    embed.set_footer(text=f"Carpe Noctem | {bot.user.name}")
+    embed.set_author(name=bot.user.name, icon_url=bot.user.avatar_url)
+    await ctx.send(embed=embed)
 
 def SetupJsonDefaults():
     data = read_json('config')
@@ -105,6 +106,8 @@ def SetupJsonDefaults():
     data['configs']['default']['channelMessagesMinThresholdForSpam'] = 3
     data['configs']['default']['guildMessagesMinThresholdForSpam'] = 10
 
+    data['configs']['default']['bypassWarnMode'] = False
+    data['configs']['default']['bypassMuteMode'] = False
     data['configs']['default']['bypassKickMode'] = False
     data['configs']['default']['bypassBanMode'] = False
     data['configs']['default']['onChannelSpamTripLockChannel'] = True
@@ -116,9 +119,26 @@ def SetupJsonDefaults():
     data['configs']['default']['auditLogKickedUserMessage'] = 'I kicked USERNAME as they had excedded the punishment limit before receiving a kick. They have received an invite back however, with warnings agaisnt further misconduct.'
     data['configs']['default']['dmBanUserMessage'] = 'Hey I did warn you! Consider yourself banned from DISCORDNAME.\nTo dispute this please join our support server and in the disputes channel type OURDISCORDGUILDPREFIXdispute PUNISHMENTID\n||OURDISCORDINVITE||'
     data['configs']['default']['auditLogBanUserMessage'] = 'I banned USERNAME as they had excedded the punishment limit before receiving a ban. They have been issued details on how to dispute the punishment.'
+
+    data['configs']['default']['globalLogKickMessage'] = '---\nI kicked USERNAME from DISCORDNAME (DISCORDID) for excedding defined limits. Punishment Id is PUNSIHMENTID\n---'
+    data['configs']['default']['globalLogBanMessage'] = '---\nI banned USERNAME from DISCORDNAME (DISCORDID) for excedding defined limits. Punishment Id is PUNISHMENTID\n---'
+    data['configs']['default']['ourDiscordId'] = 662277468983525376
+    data['configs']['default']['globalSupportChannelId'] = None
+    data['configs']['default']['globalKickLogChannelId'] = None
+    data['configs']['default']['globalBanLogChannelId'] = None
+
+    data['configs']['default']['ourDiscordInvite'] = 'Null, Contact one of the devs since this is a placeholder atm'
+    data['configs']['default']['enableUserBypassList'] = True
+    data['configs']['default']['enableRoleBypassList'] = True
+    data['configs']['default']['userBypassList'] = [271612318947868673, 387138288231907329]
+    data['configs']['default']['roleBypassList'] = []
+    data['configs']['default']['globalBlacklistedUserIds'] = []
+
     data['configs']['default'][''] = ''
     write_json(data, 'config')
 
+    print(len(data['configs']['default']))
+
 if __name__ == '__main__':
-    #SetupJsonDefaults()
+    SetupJsonDefaults()
     bot.run(bot.config_token)
