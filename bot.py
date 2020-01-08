@@ -38,10 +38,23 @@ async def on_message(message):
         await message.channel.send(content=msg)
     elif message.content == 'test2':
         msg = data['configs']['default']['userSpamMuteMessage']
-        msg = msg.replace('MENTIONAUTHOR', message.author.mention) #re.sub('MENTIONAUTHOR', message.author.mention, msg)
+        msg = msg.replace('MENTIONAUTHOR', message.author.mention) #re.sub('MENTIONAUTHOR', message.author.m    ention, msg)
         await message.channel.send(content=f'{msg}')
 
     await bot.process_commands(message)
+
+@bot.event
+async def on_member_join(member):
+    for channel in member.guild.channels:
+        if str(channel) == "general":
+            await channel.send(f"""Welcome to the server {member.mention}""")
+
+@bot.event
+async def on_member_remove(member):
+    for channel in member.guild.channels:
+        if str(channel) == "general":
+            await channel.send(f"""Goodbye {member.mention}""")
+
 
 @bot.command()
 @commands.is_owner()
@@ -95,8 +108,6 @@ def SetupJsonDefaults():
     data['configs']['default']['timesWarnedBeforeMute'] = 3 #10th time the bot pulls u up is a ban
     data['configs']['default']['timesMutedBeforeKick'] = 3
     data['configs']['default']['timesKickedBeforeBan'] = 1
-    data['configs']['default']['userSpamMessageMinimumCharacterLength'] = 3
-    data['configs']['default']['groupSpamMessageMinimumCharacterLength'] = 3
 
     data['configs']['default']['groupSpamTimer'] =  9000 # Essentially the maximum time between different users messages before it is not considered spam
     data['configs']['default']['userSpamTimer'] = 9000 # Same as above just for per user
@@ -142,5 +153,5 @@ def SetupJsonDefaults():
     print(len(data['configs']['default']))
 
 if __name__ == '__main__':
-    #SetupJsonDefaults()
+    SetupJsonDefaults()
     bot.run(bot.config_token)
