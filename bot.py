@@ -5,6 +5,10 @@ from pathlib import Path
 import json
 import re # regex
 import platform
+import os
+
+import cogs._json
+import cogs.util_functions
 
 #Printing the current working directory just cos
 cwd = Path(__file__).parents[0]
@@ -12,12 +16,12 @@ cwd = str(cwd)
 print(cwd)
 
 def get_prefix(bot, message):
-    data = read_json('config')
+    data = cogs._json.read_json('config')
     if not message.guild or str(message.guild.id) not in data['configs']:
         return commands.when_mentioned_or(data['configs']['default']['prefix'])(bot, message)
     return commands.when_mentioned_or(data['configs'][str(message.guild.id)]['prefix'])(bot, message)
 
-bot = commands.Bot(command_prefix=get_prefix, case_insensitve=True, owner_ids=[271612318947868673, 387138288231907329])
+bot = commands.Bot(command_prefix=get_prefix, case_insensitve=True, owner_id=271612318947868673)
 
 secret_file = json.load(open(cwd+'/bot_config/token.json'))
 bot.config_token = secret_file['token']
@@ -26,12 +30,17 @@ botVersion = "0.0.2"
 
 @bot.event
 async def on_ready():
+    data = cogs._json.read_json('config')
+    bot.delete_guild_data_on_remove = data['configs']['deleteGuildDataOnRemove']
+    bot.global_log_channel_id = data['configs']['default']['globalLogChannelId']
+    bot.global_log_channel_object = bot.get_channel(int(bot.global_log_channel_id))
+
     print(f"-----\nLogged in as: {bot.user.name} : {bot.user.id}\n-----")
     await bot.change_presence(activity=discord.Game(name="Playing with dpy anti spam"))
 
 @bot.event
 async def on_message(message):
-    data = read_json('config')
+    data = cogs._json.read_json('config')
     if message.content == 'test1':
         msg = data['configs']['default']['userSpamWarningMessage']
         msg = msg.replace('MENTIONAUTHOR', message.author.mention)  #re.sub('MENTIONAUTHOR', message.author.mention, msg)
@@ -55,6 +64,22 @@ async def on_member_remove(member):
         if str(channel) == "general":
             await channel.send(f"""Goodbye {member.mention}""")
 
+@bot.command(name='reload', description='Reload all cogs!')
+@commands.is_owner()
+async def reload_bot(ctx):
+    async with ctx.typing():
+        for file in os.listdir(cwd+"/cogs"):
+            if file.endswith(".py") and not file.startswith("_"):
+                try:
+                    bot.unload_extension(f"cogs.{file[:-3]}")
+                    bot.load_extension(f"cogs.{file[:-3]}")
+                    await ctx.send(':white_check_mark: Reloaded: ``'+f"cogs.{file[:-3]}"+'``')
+                except:
+                    await ctx.send(':x: Failed: ``'+f"cogs.{file[:-3]}"+'``')
+
+        data = cogs._json.read_json('config')
+        bot.delete_guild_data_on_remove = data['configs']['deleteGuildDataOnRemove']
+
 
 @bot.command()
 @commands.is_owner()
@@ -62,15 +87,6 @@ async def logout(ctx):
     """Log the bot out of discord"""
     await ctx.send("Logging out...")
     await bot.logout()
-
-def read_json(filename):
-    with open(cwd+'/bot_config/'+filename+'.json', 'r') as file:
-        data = json.load(file)
-    return data
-
-def write_json(data, filename):
-    with open(cwd+'/bot_config/'+filename+'.json', 'w') as file:
-        json.dump(data, file, indent=4)
 
 @bot.command()
 async def stats(ctx):
@@ -90,8 +106,11 @@ async def stats(ctx):
     await ctx.send(embed=embed)
 
 def SetupJsonDefaults():
-    data = read_json('config')
+    data = cogs._json.read_json('config')
     data['configs'] = {}
+
+    data['configs']['deleteGuildDataOnRemove'] = True
+
     data['configs']['default'] = {}
     data['configs']['default']['prefix'] = '--'
     data['configs']['default']['userSpamWarningMessage'] = "Stop spamming MENTIONAUTHOR, or I will be forced to take action!" #Captial letter words will be subbed out for there actual equvialant using regex
@@ -118,6 +137,9 @@ def SetupJsonDefaults():
     data['configs']['default']['userMessagesMinThresholdForSpam'] = 3
     data['configs']['default']['channelMessagesMinThresholdForSpam'] = 3
     data['configs']['default']['guildMessagesMinThresholdForSpam'] = 10
+    data['configs']['default']['userSpamMessageMinimumCharacterLength'] = 3
+    data['configs']['default']['groupSpamMessageMinimumCharacterLength'] = 3
+    data['configs']['default']['maxMessageMentionsBeforePunishment'] = 5
 
     data['configs']['default']['bypassWarnMode'] = False
     data['configs']['default']['bypassMuteMode'] = False
@@ -127,6 +149,7 @@ def SetupJsonDefaults():
     data['configs']['default']['onGuildSpamTripLockAllChannels'] = True
     data['configs']['default']['duringFullLockdownAutoMuteNewUsers'] = True
     data['configs']['default']['duringFullLockdownAutoKickNewUsers'] = False
+    data['configs']['default']['deleteDuplicateText'] = True
 
     data['configs']['default']['dmKickedUserMessage'] = 'Hey! Look, I have had to kick you from DISCORDNAME due to the amount of punishments you have received. If I have to punish you again I will ban you.\nHeres an invite back to the discord : DISCORDINVITE'
     data['configs']['default']['auditLogKickedUserMessage'] = 'I kicked USERNAME as they had excedded the punishment limit before receiving a kick. They have received an invite back however, with warnings agaisnt further misconduct.'
@@ -137,6 +160,7 @@ def SetupJsonDefaults():
     data['configs']['default']['globalLogBanMessage'] = '---\nI banned USERNAME from DISCORDNAME (DISCORDID) for excedding defined limits. Punishment Id is PUNISHMENTID\n---'
     data['configs']['default']['ourDiscordId'] = 662277468983525376
     data['configs']['default']['globalSupportChannelId'] = None
+    data['configs']['default']['globalLogChannelId'] = 664603812689870871
     data['configs']['default']['globalKickLogChannelId'] = None
     data['configs']['default']['globalBanLogChannelId'] = None
 
@@ -147,11 +171,13 @@ def SetupJsonDefaults():
     data['configs']['default']['roleBypassList'] = []
     data['configs']['default']['globalBlacklistedUserIds'] = []
 
-    data['configs']['default'][''] = ''
-    write_json(data, 'config')
+    cogs._json.write_json(data, 'config')
 
-    print(len(data['configs']['default']))
+    #print(len(data['configs']['default']))
 
 if __name__ == '__main__':
-    SetupJsonDefaults()
+    #SetupJsonDefaults()
+    for file in os.listdir(cwd+"/cogs"):
+        if file.endswith(".py") and not file.startswith("_"):
+            bot.load_extension(f"cogs.{file[:-3]}")
     bot.run(bot.config_token)
