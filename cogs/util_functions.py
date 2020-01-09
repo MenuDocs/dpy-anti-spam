@@ -1,10 +1,8 @@
 import discord
 from discord.ext  import commands
 import copy
-import pytz
 import datetime
 from datetime import datetime, timezone
-from tzlocal import get_localzone
 
 import cogs._json
 
