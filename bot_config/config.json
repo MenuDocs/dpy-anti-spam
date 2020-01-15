@@ -114,7 +114,12 @@
             "globalBlacklistedUserIds": [],
             "logChannelID": null,
             "guildBlacklistedUserIds": [],
-            "muteRoleId": null
+            "muteRoleId": null,
+            "welcomer": true,
+            "welcomeChannelId": 666970957361053726,
+            "welcomeMessage": "Hey MENTIONUSER! Welcome to GUILDNAME, enjoy your time here!\nJoin position: LENGUILDMEMBERS",
+            "auditChannelId": null,
+            "discordContactPersonId": null
         }
     }
 }

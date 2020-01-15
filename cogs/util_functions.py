@@ -3,6 +3,7 @@ from discord.ext  import commands
 import copy
 import datetime
 from datetime import datetime, timezone
+import random
 
 import cogs._json
 
@@ -62,6 +63,11 @@ async def SetupGuildDefaultConfig(guild):
     data['configs'][str(guild.id)]['logChannelID'] = None
     data['configs'][str(guild.id)]['guildBlacklistedUserIds'] = []
     data['configs'][str(guild.id)]['muteRoleId'] = None
+    data['configs'][str(guild.id)]['welcomer'] = False
+    data['configs'][str(guild.id)]['welcomeChannelId'] = None
+    data['configs'][str(guild.id)]['welcomeMessage'] = "Hey MENTIONUSER! Welcome to GUILDNAME, enjoy your time here!\nJoin position: LENGUILDMEMBERS"
+    data['configs'][str(guild.id)]['auditChannelId'] = None
+    data['configs'][str(guild.id)]['discordContactPersonId'] = None
 
     cogs._json.write_json(data, 'config')
 
@@ -89,6 +95,50 @@ async def CheckGuildHasSettings(guild):
     if not str(guild.id) in data['configs']:
         await SetupGuildDefaultConfig(guild)
     return True
+
+async def RandomEmbedColor(self):
+    return random.choice(self.bot.colorList)
+
+async def StringReplaceConfigMessages(string, guild, member=None):
+    """
+    Essentially a function to check every end case we have for subsitution to save
+    us writing loads of code everytime we need to sub something
+
+    Things that still need to be added and handled that arent rn:
+    DISCORDINVITE
+    PUNISHMENTID
+    OURDISCORDGUILDPREFIX
+    """
+    if member:
+        if 'MENTIONUSER' in string:
+            string = string.replace('MENTIONUSER', member.mention)
+        if 'USERNAME' in string:
+            string = string.replace('USERNAME', member.name)
+
+    if guild:
+        if 'LENGUILDMEMBERS' in string:
+            string = string.replace('LENGUILDMEMBERS', str(len(guild.members)))
+        if 'DISCORDNAME' in string:
+            string = string.replace('DISCORDNAME', guild.name)
+        if 'DISCORDID' in string:
+            string = string.replace('DISCORDID', guild.id)
+        if 'GUILDNAME' in string:
+            string = string.replace('GUILDNAME', guild.name)
+
+    list = ['DISCORDCONTACTPERSONINFO', 'OURDISCORDINVITE']
+    trip = False
+    for item in list:
+        if item in string:
+            trip = True
+    if trip == True:
+        data = cogs._json.read_json('config')
+        if 'DISCORDCONTACTPERSONINFO' in string:
+            if data['config'][str(guild.id)]['discordContactPersonId']:
+                string = string.replace('DISCORDCONTACTPERSONINFO', data['config'][str(guild.id)]['discordContactPersonId'])
+        if 'OURDISCORDINVITE' in string:
+            string = string.replace('OURDISCORDINVITE', data['config'][str(guild.id)]['ourDiscordInvite'])
+
+    return string
 
 def setup(bot):
     bot.add_cog(UtilFunctions(bot))

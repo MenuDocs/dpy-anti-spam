@@ -9,10 +9,19 @@ class SpamChecks(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print("Spam Checks Cog has been loaded\n-----")
+
     @commands.command()
     async def cm(self, ctx, *, args):
         t = await UserSpamMessageMinimumCharacterLengthCheck(self.bot, ctx.guild, ctx.author, ctx.channel, args)
         await ctx.send(t)
+
+    @commands.command()
+    @commands.is_owner()
+    async def setguilddefault(self, ctx):
+        await cogs.util_functions.SetupGuildDefaultConfig(ctx.guild)
 
 async def UserSpamMessageMinimumCharacterLengthCheck(bot, guild, user, channel, message):
     """

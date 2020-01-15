@@ -28,6 +28,29 @@ bot.config_token = secret_file['token']
 
 botVersion = "0.0.2"
 
+colors = {
+  'WHITE': 0xFFFFFF,
+  'AQUA': 0x1ABC9C,
+  'GREEN': 0x2ECC71,
+  'BLUE': 0x3498DB,
+  'PURPLE': 0x9B59B6,
+  'LUMINOUS_VIVID_PINK': 0xE91E63,
+  'GOLD': 0xF1C40F,
+  'ORANGE': 0xE67E22,
+  'RED': 0xE74C3C,
+  'NAVY': 0x34495E,
+  'DARK_AQUA': 0x11806A,
+  'DARK_GREEN': 0x1F8B4C,
+  'DARK_BLUE': 0x206694,
+  'DARK_PURPLE': 0x71368A,
+  'DARK_VIVID_PINK': 0xAD1457,
+  'DARK_GOLD': 0xC27C0E,
+  'DARK_ORANGE': 0xA84300,
+  'DARK_RED': 0x992D22,
+  'DARK_NAVY': 0x2C3E50
+}
+bot.colorList = [c for c in colors.values()]
+
 @bot.event
 async def on_ready():
     data = cogs._json.read_json('config')
@@ -51,18 +74,6 @@ async def on_message(message):
         await message.channel.send(content=f'{msg}')
 
     await bot.process_commands(message)
-
-@bot.event
-async def on_member_join(member):
-    for channel in member.guild.channels:
-        if str(channel) == "general":
-            await channel.send(f"""Welcome to the server {member.mention}""")
-
-@bot.event
-async def on_member_remove(member):
-    for channel in member.guild.channels:
-        if str(channel) == "general":
-            await channel.send(f"""Goodbye {member.mention}""")
 
 @bot.command(name='reload', description='Reload all cogs!')
 @commands.is_owner()
