@@ -79,5 +79,16 @@ async def DeleteGuildSettings(guildId):
     cogs._json.write_json(data, 'config')
     return True
 
+async def CheckGuildHasSettings(guild):
+    """
+    A function used to check if a guild exists in the config
+    file and if it doesnt, create the settings. This should be
+    used before every function that uses guild settings basically
+    """
+    data = cogs._json.read_json('config')
+    if not str(guild.id) in data['configs']:
+        await SetupGuildDefaultConfig(guild)
+    return True
+
 def setup(bot):
     bot.add_cog(UtilFunctions(bot))

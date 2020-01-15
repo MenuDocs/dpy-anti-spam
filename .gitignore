@@ -1,3 +1,4 @@
 .DS_Store
 bot_config/token.json
 cogs/__pycache__
+Function lists.txt

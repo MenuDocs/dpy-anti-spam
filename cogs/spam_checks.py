@@ -10,28 +10,30 @@ class SpamChecks(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def checkmessage(self, ctx, *, args):
-        await UserMessageMeetsThreshold(self.bot, ctx.guild, ctx.author, args)
+    async def cm(self, ctx, *, args):
+        t = await UserSpamMessageMinimumCharacterLengthCheck(self.bot, ctx.guild, ctx.author, ctx.channel, args)
+        await ctx.send(t)
 
-async def UserMessageMeetsThreshold(bot, guild, user, message):
+async def UserSpamMessageMinimumCharacterLengthCheck(bot, guild, user, channel, message):
+    """
+    A funtion used to check the message in question meets the requirments for minimum
+    character lengths for spam in the guild in question.
+    This function is essentially step one in any mute function where a check may be run.
+    *May not be used to check spam when using timestamps rather than actual message content
+    """
     data = cogs._json.read_json('config')
-    if not str(guild.id) in data['configs']:
-        guildSetting = data['configs']['default']['userMessagesMinThresholdForSpam']
-        await cogs.util_functions.SetupGuildDefaultConfig(guild)
+    if isinstance(channel, discord.DMChannel):
+        return
+    await cogs.util_functions.CheckGuildHasSettings(guild)
+    guildSetting = data['configs'][str(guild.id)]['userMessagesMinThresholdForSpam']
+    if len(message) >= guildSetting:
+        return True
     else:
-        guildSetting = data['configs'][str(guild.id)]['userMessagesMinThresholdForSpam']
-    messageContent = message
-    if len(messageContent) > guildSetting:
-        #do stuff
-        pass
+        return False
 
 
-async def groupSpamMessageMinimumCharacterLength(bot, guild, user, message):
-
-
-
-
-
+async def GroupSpamMessageMinimumCharacterLength(bot, guild, user, message):
+    pass
 
 def setup(bot):
     bot.add_cog(SpamChecks(bot))
