@@ -26,5 +26,12 @@ async def UserMessageMeetsThreshold(bot, guild, user, message):
         pass
 
 
+async def groupSpamMessageMinimumCharacterLength(bot, guild, user, message):
+
+
+
+
+
+
 def setup(bot):
     bot.add_cog(SpamChecks(bot))
