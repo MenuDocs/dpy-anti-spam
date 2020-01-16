@@ -58,7 +58,7 @@
             "globalBlacklistedUserIds": []
         },
         "662277468983525376": {
-            "prefix": "--",
+            "prefix": "!",
             "userSpamWarningMessage": "Stop spamming MENTIONAUTHOR, or I will be forced to take action!",
             "userSpamMuteMessage": "Hey MENTIONAUTHOR! I have muted you for spam, you will be unmuted at UNMUTETIME.",
             "groupSpamWarningMessage": "Hey! I need all of you to stop spamming before I punish everyone.",

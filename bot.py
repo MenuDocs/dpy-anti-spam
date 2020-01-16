@@ -22,11 +22,12 @@ def get_prefix(bot, message):
     return commands.when_mentioned_or(data['configs'][str(message.guild.id)]['prefix'])(bot, message)
 
 bot = commands.Bot(command_prefix=get_prefix, case_insensitve=True, owner_id=271612318947868673)
+bot.remove_command('help')
 
 secret_file = json.load(open(cwd+'/bot_config/token.json'))
 bot.config_token = secret_file['token']
 
-botVersion = "0.0.2"
+bot.Version = "0.0.3"
 
 colors = {
   'WHITE': 0xFFFFFF,
@@ -91,31 +92,6 @@ async def reload_bot(ctx):
         data = cogs._json.read_json('config')
         bot.delete_guild_data_on_remove = data['configs']['deleteGuildDataOnRemove']
 
-
-@bot.command()
-@commands.is_owner()
-async def logout(ctx):
-    """Log the bot out of discord"""
-    await ctx.send("Logging out...")
-    await bot.logout()
-
-@bot.command()
-async def stats(ctx):
-    pythonVersion = platform.python_version()
-    dpyVersion = discord.__version__
-    serverCount = len(bot.guilds)
-    memberCount = len(set(bot.get_all_members()))
-    embed = discord.Embed(title=f'{bot.user.name} Stats', description='\uFEFF', colour=ctx.author.colour)
-    embed.add_field(name='Bot Version:', value=botVersion)
-    embed.add_field(name='Python Version:', value=pythonVersion)
-    embed.add_field(name='Discord.Py Version', value=dpyVersion)
-    embed.add_field(name='Total Guilds:', value=serverCount)
-    embed.add_field(name='Total Users:', value=memberCount)
-    embed.add_field(name='Bot Developers:', value="<@271612318947868673> and <@387138288231907329>")
-    embed.set_footer(text=f"Carpe Noctem | {bot.user.name}")
-    embed.set_author(name=bot.user.name, icon_url=bot.user.avatar_url)
-    await ctx.send(embed=embed)
-
 def SetupJsonDefaults():
     data = cogs._json.read_json('config')
     data['configs'] = {}
@@ -123,7 +99,7 @@ def SetupJsonDefaults():
     data['configs']['deleteGuildDataOnRemove'] = True
 
     data['configs']['default'] = {}
-    data['configs']['default']['prefix'] = '--'
+    data['configs']['default']['prefix'] = '~~'
     data['configs']['default']['userSpamWarningMessage'] = "Stop spamming MENTIONAUTHOR, or I will be forced to take action!" #Captial letter words will be subbed out for there actual equvialant using regex
     data['configs']['default']['userSpamMuteMessage'] = "Hey MENTIONAUTHOR! I have muted you for spam, you will be unmuted at UNMUTETIME."
     data['configs']['default']['groupSpamWarningMessage'] = 'Hey! I need all of you to stop spamming before I punish everyone.'

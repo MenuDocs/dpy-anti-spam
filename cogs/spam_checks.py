@@ -13,12 +13,12 @@ class SpamChecks(commands.Cog):
     async def on_ready(self):
         print("Spam Checks Cog has been loaded\n-----")
 
-    @commands.command()
+    @commands.command(name='cm', description='A function testing command', usage='* args(a message)')
     async def cm(self, ctx, *, args):
         t = await UserSpamMessageMinimumCharacterLengthCheck(self.bot, ctx.guild, ctx.author, ctx.channel, args)
         await ctx.send(t)
 
-    @commands.command()
+    @commands.command(name='setguilddefault', description='Resets the guilds dataset to defaults')
     @commands.is_owner()
     async def setguilddefault(self, ctx):
         await cogs.util_functions.SetupGuildDefaultConfig(ctx.guild)
@@ -48,7 +48,7 @@ async def GroupSpamMessageMinimumCharacterLength(bot, guild, user, message):
     await cogs.util_functions.CheckGuildHasSettings(guild)
 
     guildSetting = data['configs'][str(guild.id)]['groupMessagesMinThresholdForSpam']
-     if len(message) >= guildSetting:
+    if len(message) >= guildSetting:
         return True
     else:
         return False
