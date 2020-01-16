@@ -42,7 +42,18 @@ async def UserSpamMessageMinimumCharacterLengthCheck(bot, guild, user, channel, 
 
 
 async def GroupSpamMessageMinimumCharacterLength(bot, guild, user, message):
-    pass
+    data = cogs._json.read_json('config')
+    if isinstance(channel, discord.DMChannel):
+        return
+    await cogs.util_functions.CheckGuildHasSettings(guild)
+
+    guildSetting = data['configs'][str(guild.id)]['groupMessagesMinThresholdForSpam']
+     if len(message) >= guildSetting:
+        return True
+    else:
+        return False
+
+
 
 def setup(bot):
     bot.add_cog(SpamChecks(bot))
