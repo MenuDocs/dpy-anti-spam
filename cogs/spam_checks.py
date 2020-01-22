@@ -13,12 +13,12 @@ class SpamChecks(commands.Cog):
     async def on_ready(self):
         print("Spam Checks Cog has been loaded\n-----")
 
-    @commands.command(name='cm', description='A function testing command', usage='* args(a message)')
+    @commands.command()
     async def cm(self, ctx, *, args):
         t = await UserSpamMessageMinimumCharacterLengthCheck(self.bot, ctx.guild, ctx.author, ctx.channel, args)
         await ctx.send(t)
 
-    @commands.command(name='setguilddefault', description='Resets the guilds dataset to defaults')
+    @commands.command()
     @commands.is_owner()
     async def setguilddefault(self, ctx):
         await cogs.util_functions.SetupGuildDefaultConfig(ctx.guild)
@@ -41,19 +41,18 @@ async def UserSpamMessageMinimumCharacterLengthCheck(bot, guild, user, channel, 
         return False
 
 
-async def GroupSpamMessageMinimumCharacterLength(bot, guild, user, message):
+async def GroupSpamMessageMinimumCharacterLength(bot, guild, user, message, channel):
     data = cogs._json.read_json('config')
     if isinstance(channel, discord.DMChannel):
         return
     await cogs.util_functions.CheckGuildHasSettings(guild)
 
     guildSetting = data['configs'][str(guild.id)]['groupMessagesMinThresholdForSpam']
-    if len(message) >= guildSetting:
+     if len(message) >= guildSetting:
         return True
     else:
         return False
 
-
-
+                       
 def setup(bot):
     bot.add_cog(SpamChecks(bot))
