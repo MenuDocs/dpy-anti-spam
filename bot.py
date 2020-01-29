@@ -92,6 +92,19 @@ async def reload_bot(ctx):
         data = cogs._json.read_json('config')
         bot.delete_guild_data_on_remove = data['configs']['deleteGuildDataOnRemove']
 
+@bot.event
+async def on_member_join(member):
+    for channel in member.guild.channels:
+        if str(channel) == "general":
+            await channel.send(f"""Welcome to the server {member.mention}""")
+
+@bot.event
+async def on_member_remove(member):
+    for channel in member.guild.channels:
+        if str(channel) == "general":
+            await channel.send(f"""Goodbye {member.mention}""")
+
+
 def SetupJsonDefaults():
     data = cogs._json.read_json('config')
     data['configs'] = {}
