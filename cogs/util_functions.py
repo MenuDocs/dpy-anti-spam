@@ -4,6 +4,7 @@ import copy
 import datetime
 from datetime import datetime, timezone
 import random
+import time
 
 import cogs._json
 
@@ -66,6 +67,7 @@ async def SetupGuildDefaultConfig(guild):
     data['configs'][str(guild.id)]['welcomer'] = False
     data['configs'][str(guild.id)]['welcomeChannelId'] = None
     data['configs'][str(guild.id)]['welcomeMessage'] = "Hey MENTIONUSER! Welcome to GUILDNAME, enjoy your time here!\nJoin position: LENGUILDMEMBERS"
+    data['configs'][str(guild.id)]['leaveMessage'] = "Hey! USERNAME has left GUILDNAME. We will miss you"
     data['configs'][str(guild.id)]['auditChannelId'] = None
     data['configs'][str(guild.id)]['discordContactPersonId'] = None
 
@@ -139,6 +141,9 @@ async def StringReplaceConfigMessages(string, guild, member=None):
             string = string.replace('OURDISCORDINVITE', data['config'][str(guild.id)]['ourDiscordInvite'])
 
     return string
+
+async def TimeSinceEpoch():
+    return int(round(time.time() * 1000))
 
 def setup(bot):
     bot.add_cog(UtilFunctions(bot))

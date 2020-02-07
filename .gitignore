@@ -2,3 +2,6 @@
 bot_config/token.json
 cogs/__pycache__
 Function lists.txt
+tests/__pycache__
+redis_exe
+redis key schema.txt

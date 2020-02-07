@@ -52,12 +52,6 @@ async def GroupSpamMessageMinimumCharacterLength(bot, guild, user, message, chan
     else:
         return False
 
-async def UserSpamTimer(bot, guild, user, message, channel);
-    data = cogs._json.read_json('config')
-     if isinstance(channel, discord.DMChannel):
-        return
-    await
-
 
 def setup(bot):
     bot.add_cog(SpamChecks(bot))
