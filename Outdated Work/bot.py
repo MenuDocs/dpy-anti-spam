@@ -6,6 +6,7 @@ import json
 import re # regex
 import platform
 import os
+import asyncio
 
 import cogs._json
 import cogs.util_functions
@@ -62,20 +63,6 @@ async def on_ready():
     print(f"-----\nLogged in as: {bot.user.name} : {bot.user.id}\n-----")
     await bot.change_presence(activity=discord.Game(name="Playing with dpy anti spam"))
 
-@bot.event
-async def on_message(message):
-    data = cogs._json.read_json('config')
-    if message.content == 'test1':
-        msg = data['configs']['default']['userSpamWarningMessage']
-        msg = msg.replace('MENTIONAUTHOR', message.author.mention)  #re.sub('MENTIONAUTHOR', message.author.mention, msg)
-        await message.channel.send(content=msg)
-    elif message.content == 'test2':
-        msg = data['configs']['default']['userSpamMuteMessage']
-        msg = msg.replace('MENTIONAUTHOR', message.author.mention) #re.sub('MENTIONAUTHOR', message.author.m    ention, msg)
-        await message.channel.send(content=f'{msg}')
-
-    await bot.process_commands(message)
-
 @bot.command(name='reload', description='Reload all cogs!')
 @commands.is_owner()
 async def reload_bot(ctx):
@@ -91,6 +78,24 @@ async def reload_bot(ctx):
 
         data = cogs._json.read_json('config')
         bot.delete_guild_data_on_remove = data['configs']['deleteGuildDataOnRemove']
+
+@bot.command()
+@commands.is_owner()
+async def savetest(ctx):
+    print('starting')
+    with open("tests/detecting spam messages testing/training2.txt","a") as f:
+        for guild in bot.guilds:
+            print(guild.name)
+            for channel in guild.text_channels:
+                print(channel.name)
+                async for message in channel.history(limit=5000):
+                    try:
+                        f.write(f'{message.clean_content}\n')
+                    except:
+                        pass
+                await asyncio.sleep(5)
+            await asyncio.sleep(25)
+    print('finished')
 
 def SetupJsonDefaults():
     data = cogs._json.read_json('config')
@@ -161,6 +166,8 @@ def SetupJsonDefaults():
     cogs._json.write_json(data, 'config')
 
     #print(len(data['configs']['default']))
+
+#tests/detecting spam messages testing
 
 if __name__ == '__main__':
     #SetupJsonDefaults()

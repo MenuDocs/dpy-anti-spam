@@ -73,7 +73,7 @@ class Events(commands.Cog):
             leaveMessage = data['configs'][str(member.guild.id)]['leaveMessage']
             leaveMessage = await cogs.util_functions.StringReplaceConfigMessages(string=leaveMessage, guild=member.guild, member=member)
             color = await cogs.util_functions.RandomEmbedColor(self)
-            embed = discord.Embed(description=welcomeMessage, color=color)
+            embed = discord.Embed(description=leaveMessage, color=color)
             embed.set_thumbnail(url=f'{member.avatar_url}')
             embed.set_author(name=f'{member.name}', icon_url=f'{member.avatar_url}')
             embed.set_footer(text=f'{member.guild}', icon_url=f'{member.guild.icon_url}')
