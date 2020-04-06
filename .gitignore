@@ -6,3 +6,4 @@ tests/__pycache__
 redis_exe
 redis key schema.txt
 tests/
+das/__pycache__

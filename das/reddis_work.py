@@ -229,19 +229,3 @@ class Redis:
             return ((getResult[0], setResult[0]), (getResult[1], setResult[1]))
         except Exception as e:
             return ((500, 500), (e, e))
-
-class Test:
-    def testing(self):
-        print("well isnt this cool")
-
-# Just some testing
-r = Redis(9000)
-r.connect()
-
-print(r.delete("check"))
-test = r.getset_object("check", Test())
-test = r.getset_object("check", Test())
-print(test)
-
-if test[0][0] == 200:
-    test[1][0].testing()
