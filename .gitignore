@@ -1,9 +1,12 @@
 .DS_Store
-Outdated Work/bot_config/token.json
-Outdated Work/cogs/__pycache__
 Function lists.txt
-tests/__pycache__
 redis_exe
 redis key schema.txt
 tests/
-das/__pycache__
+
+# Ignore all pycache's
+*/__pycache__
+__pycache__
+
+# Ignore all json files
+*.json

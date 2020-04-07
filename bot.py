@@ -8,8 +8,9 @@ import platform
 import os
 import asyncio
 
+import das
+
 import cogs._json
-import cogs.util_functions
 
 #Printing the current working directory just cos
 cwd = Path(__file__).parents[0]
@@ -27,6 +28,9 @@ bot.remove_command('help')
 
 secret_file = json.load(open(cwd+'/bot_config/token.json'))
 bot.config_token = secret_file['token']
+
+bot.das = das.Das()
+print(bot.das.initialize())
 
 bot.Version = "0.0.3"
 
@@ -78,6 +82,27 @@ async def reload_bot(ctx):
 
         data = cogs._json.read_json('config')
         bot.delete_guild_data_on_remove = data['configs']['deleteGuildDataOnRemove']
+
+@bot.event
+async def on_message(message):
+    #Ignore ourselves
+    if message.author.id == bot.user.id:
+        return
+
+    # Check if our guild exists, and if not, create one
+    if not bot.das.guild_exists(message.guild.id):
+        await message.channel.send(bot.das.create_guild(message.guild.name, message.guild.id, message.guild.owner.id))
+
+    # Check if the user exists in the guild and if not create one
+    g = bot.das.get_guild_instance(message.guild.id)
+    if not g.user_exists(message.author.id):
+        await message.channel.send(bot.das.create_new_user_in_guild(guildId=message.guild.id, userName=message.author.name, userId=message.author.id))
+
+    # Get our user instance and then send the users info the channel
+    u = g.get_user_instance(message.author.id)
+    await message.channel.send(u.info())
+
+    await bot.process_commands(message)
 
 @bot.command()
 @commands.is_owner()

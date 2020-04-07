@@ -1,4 +1,4 @@
-from reddis_work import Redis
+from .reddis_work import Redis
 
 """
 Decided to redo the whole thing and base it on a class
@@ -232,6 +232,7 @@ class User:
         """
         return (200, {"name": self.name, "id": self.id})
 
+"""
 das = Das()
 print(das.initialize())
 
@@ -239,3 +240,4 @@ print(das.create_new_user_in_guild(guildId=12345, userName="test user", userId=1
 print(das.create_guild("Test Guild", 12345, 1))
 print(das.create_new_user_in_guild(guildId=12345, userName="test user", userId=1))
 print(das.create_new_user_in_guild(guildId=12345, userName="test user", userId=1))
+"""
